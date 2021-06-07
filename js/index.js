@@ -95,7 +95,7 @@ loadData().then(data => {
         const item = data[index][lineParam];
         let entries = Object.entries(item).slice(0, -5)
         let xScaler = xLine.domain(d3.extent(entries.map(entry => new Date(entry[0]))));
-        let yScaler = yLine.domain(d3.extent(entries.map(entry => parseFloat(entry[1]))));
+        let yScaler = yLine.domain(d3.extent(entries.map(entry => parseFloat(entry[1]) || 0)));
         lineChart.selectAll('path').remove();
         countryName.html(selected);
         xLineAxis.call(d3.axisBottom(xScaler));
@@ -107,14 +107,14 @@ loadData().then(data => {
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
                 .x(data => xScaler(new Date(data[0])))
-                .y(data => yScaler(parseFloat(data[1]))))
+                .y(data => yScaler(parseFloat(data[1]) || 0)))
     }
 
 //Drawing bars for 4 given regions
     function updateBar() {
         let meanData = d3.nest()
             .key(data => data['region'])
-            .rollup(v => d3.mean(v, data => parseFloat(data[param][year])))
+            .rollup(v => d3.mean(v, data => parseFloat(data[param][year]) || 0))
             .entries(data);
 
         let xScaler = xBar.domain(['asia', 'europe', 'africa', 'americas']);
@@ -172,9 +172,9 @@ loadData().then(data => {
 
 //Drawing a scatterplot
     function updateScatterPlot() {
-        let rScaler = radiusScale.domain(d3.extent(data.map(data => parseFloat(data[rParam][year]))));
-        let xScaler = x.domain(d3.extent(data.map(data => parseFloat(data[xParam][year]))));
-        let yScaler = y.domain(d3.extent(data.map(data => parseFloat(data[yParam][year]))));
+        let rScaler = radiusScale.domain(d3.extent(data.map(data => parseFloat(data[rParam][year]) || 0)));
+        let xScaler = x.domain(d3.extent(data.map(data => parseFloat(data[xParam][year]) || 0)));
+        let yScaler = y.domain(d3.extent(data.map(data => parseFloat(data[yParam][year]) || 0)));
         xAxis.call(d3.axisBottom(xScaler));
         yAxis.call(d3.axisLeft(yScaler));
 
@@ -191,9 +191,9 @@ loadData().then(data => {
 
 //Setting the attributes of circles (points)
     function handleScatter(selection, xScaler, yScaler, rScaler) {
-        selection.attr('r', data => rScaler(parseFloat(data[rParam][year])))
-            .attr('cx', data => xScaler(parseFloat(data[xParam][year])))
-            .attr('cy', data => yScaler(parseFloat(data[yParam][year])))
+        selection.attr('r', data => rScaler(parseFloat(data[rParam][year]) || 0))
+            .attr('cx', data => xScaler(parseFloat(data[xParam][year]) || 0))
+            .attr('cy', data => yScaler(parseFloat(data[yParam][year]) || 0))
             .attr('fill', data => colorScale(data['region']));
     }
 
